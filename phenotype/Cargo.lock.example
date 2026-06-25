@@ -1,0 +1,30 @@
+# Example Cargo.lock for substrate consumers wiring context-mode-plusplus
+#
+# A substrate consumer (e.g., KooshaPari/substrate/crates/driver-mcp) that
+# wants to integrate context-mode should pin both the substrate workspace
+# and the context-mode-plusplus fork, and reference both repos' LICENSE.
+#
+# This file is illustrative — actual Cargo.lock entries depend on the consumer's
+# transitive deps. The canonical consumer is substrate-context-mode-adapter at
+# crates/context-mode-adapter/Cargo.toml.
+
+[workspace]
+resolver = "2"
+members = [
+    "crates/context-mode-adapter",   # this fork's Rust adapter
+    "crates/otlp-bridge",            # OTLP/HTTP exporter
+    "crates/llm-bridge",             # cliproxy-adapter LLM router
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "ELv2"  # inherited from context-mode upstream
+repository = "https://github.com/KooshaPari/context-mode-plusplus"
+
+[workspace.dependencies]
+# Pin substrate workspace
+substrate-core = { git = "https://github.com/KooshaPari/substrate", tag = "v0.4.0" }
+substrate-trace = { git = "https://github.com/KooshaPari/substrate", tag = "v0.4.0" }
+cliproxy-adapter = { git = "https://github.com/KooshaPari/substrate", tag = "v0.4.0" }
+context-budget = { git = "https://github.com/KooshaPari/substrate", tag = "v0.4.0" }
