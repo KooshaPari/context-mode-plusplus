@@ -98,3 +98,39 @@ jobs:
       - name: Doctor (verify server starts)
         run: npx tsx src/cli.ts doctor
         continue-on-error: true
+
+  benchmark:
+    # Run only on Linux to keep costs low; macOS/Windows matrix is for
+    # functional correctness — performance SLOs are measured on a stable
+    # Linux runner only.
+    runs-on: ubuntu-latest
+    name: benchmark (SLO gate)
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.5"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Run benchmark with SLO assertions
+        shell: bash
+        run: |
+          # Run the benchmark and assert latency + heap SLOs.
+          # Exit code 1 from the assertion script fails the job.
+          npx tsx scripts/ci-benchmark-assert.ts
+
+      - name: Upload benchmark results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results-${{ github.run_id }}
+          path: |
+            benchmark-results*.json
+            live-benchmark*.json
